@@ -1,4 +1,6 @@
 const express = require('express');
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./openapi.json');
 
 const app = express();
 const PORT = 3000;
@@ -19,6 +21,8 @@ const initialTasks = [
 ];
 
 let tasks = [...initialTasks];
+
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.get('/', (req, res) => {
   res.status(200).json({
