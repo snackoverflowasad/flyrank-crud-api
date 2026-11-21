@@ -152,3 +152,42 @@ Keep-Alive: timeout=5
 ## The Mortality Experiment
 
 When tasks are created or modified during the runtime of this API and the Node.js process is stopped and restarted, all newly created and updated records disappear, reverting strictly to the initial three seed items. This occurs because the application stores data exclusively in the process's volatile heap memory (`RAM`), which is wiped when the operating system terminates the process, demonstrating the fundamental necessity of persistent databases.
+
+---
+
+## AI vs Me
+
+### Full Prompt
+```text
+Build a RESTful task management API in Node.js with Express. The server should listen on port 3000. Data must be held entirely in an in-memory array initialized with 3 sample items, each containing an integer id, a string title, and a boolean done flag.
+
+Implement the following endpoints:
+1. GET / - returns JSON metadata with API name, version 1.0, and list of endpoints.
+2. GET /health - returns { "status": "ok" }.
+3. GET /tasks - returns the array of all tasks.
+4. GET /tasks/:id - returns the task matching the numerical id or 404 with JSON { "error": "Task <id> not found" }.
+5. POST /tasks - accepts { "title": string }, assigns auto-incremented integer id, sets done to false, adds to collection, returns 201 with created task. If title is missing or empty string, return 400 with a descriptive JSON error.
+6. PUT /tasks/:id - accepts JSON with optional title and/or done fields. Returns 404 if id does not exist. Returns 400 if body is empty or invalid. Returns 200 with updated task.
+7. DELETE /tasks/:id - removes task by id. Returns 404 if not found. Returns 204 with empty body on success.
+8. Interactive Swagger UI mounted at /docs.
+
+Do not write code comments and use professional naming conventions throughout.
+```
+
+### Concrete Differences & Comparative Review
+
+1. **What the AI did better:**
+   The AI exported the application instance (`module.exports = app`) guarded by `if (require.main === module)`, allowing the server to be imported directly into integration test suites (like Supertest) without starting the HTTP listener.
+
+2. **What the AI got wrong or overlooked:**
+   - The AI embedded an abbreviated, superficial Swagger definition directly in code without full component schemas, request bodies, or path parameter typings.
+   - It lacked custom error handling for malformed JSON payloads, causing Express to return default HTML 400 stack traces rather than standardized JSON error responses.
+   - It parsed IDs using `parseInt` without validating against non-numeric `NaN` parameters.
+
+3. **What the prompt forgot to specify and what the AI decided:**
+   - The prompt did not specify modular OpenAPI separation; the AI silently placed the specification in the entrypoint file rather than a dedicated `openapi.json`.
+   - The prompt did not define ID reclamation rules; the AI opted for a strictly monotonic sequence counter (`currentIdSequence += 1`) instead of dynamic highest-ID calculation (`Math.max(...ids) + 1`).
+   - The prompt did not define query parameter filtering or utility routes; the AI omitted search and reset functionality.
+
+### Rematch Refinement
+The prompt was revised to enforce separate `openapi.json` architectural decoupling, full JSON Schema object models for request bodies and error envelopes, and explicit JSON error handling for body-parser syntax faults.

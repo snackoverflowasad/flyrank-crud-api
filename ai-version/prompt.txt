@@ -1,0 +1,13 @@
+Build a RESTful task management API in Node.js with Express. The server should listen on port 3000. Data must be held entirely in an in-memory array initialized with 3 sample items, each containing an integer id, a string title, and a boolean done flag.
+
+Implement the following endpoints:
+1. GET / - returns JSON metadata with API name, version 1.0, and list of endpoints.
+2. GET /health - returns { "status": "ok" }.
+3. GET /tasks - returns the array of all tasks.
+4. GET /tasks/:id - returns the task matching the numerical id or 404 with JSON { "error": "Task <id> not found" }.
+5. POST /tasks - accepts { "title": string }, assigns auto-incremented integer id, sets done to false, adds to collection, returns 201 with created task. If title is missing or empty string, return 400 with a descriptive JSON error.
+6. PUT /tasks/:id - accepts JSON with optional title and/or done fields. Returns 404 if id does not exist. Returns 400 if body is empty or invalid. Returns 200 with updated task.
+7. DELETE /tasks/:id - removes task by id. Returns 404 if not found. Returns 204 with empty body on success.
+8. Interactive Swagger UI mounted at /docs.
+
+Do not write code comments and use professional naming conventions throughout.
