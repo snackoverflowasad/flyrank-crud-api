@@ -14,13 +14,13 @@ app.use((error, req, res, next) => {
   next();
 });
 
-const initialTasks = [
+const defaultSeedTasks = [
   { id: 1, title: 'Learn backend basics', done: true },
   { id: 2, title: 'Build CRUD API', done: false },
   { id: 3, title: 'Push to GitHub', done: false }
 ];
 
-let tasks = [...initialTasks];
+let tasks = defaultSeedTasks.map((task) => ({ ...task }));
 
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
@@ -28,7 +28,7 @@ app.get('/', (req, res) => {
   res.status(200).json({
     name: 'Task API',
     version: '1.0',
-    endpoints: ['/tasks']
+    endpoints: ['/tasks', '/stats', '/reset', '/health', '/docs']
   });
 });
 
@@ -38,8 +38,44 @@ app.get('/health', (req, res) => {
   });
 });
 
+app.get('/stats', (req, res) => {
+  const total = tasks.length;
+  const completed = tasks.filter((item) => item.done === true).length;
+  const open = total - completed;
+
+  res.status(200).json({
+    total,
+    done: completed,
+    open
+  });
+});
+
+app.post('/reset', (req, res) => {
+  tasks = defaultSeedTasks.map((task) => ({ ...task }));
+  res.status(200).json({
+    message: 'Task collection successfully reset to default seed data',
+    total: tasks.length
+  });
+});
+
 app.get('/tasks', (req, res) => {
-  res.status(200).json(tasks);
+  const { done, search } = req.query;
+  let filteredTasks = [...tasks];
+
+  if (done !== undefined) {
+    if (done === 'true') {
+      filteredTasks = filteredTasks.filter((item) => item.done === true);
+    } else if (done === 'false') {
+      filteredTasks = filteredTasks.filter((item) => item.done === false);
+    }
+  }
+
+  if (search && typeof search === 'string' && search.trim().length > 0) {
+    const keyword = search.trim().toLowerCase();
+    filteredTasks = filteredTasks.filter((item) => item.title.toLowerCase().includes(keyword));
+  }
+
+  res.status(200).json(filteredTasks);
 });
 
 app.get('/tasks/:id', (req, res) => {

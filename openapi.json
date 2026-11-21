@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Task Management API",
-    "description": "A high-performance in-memory CRUD API for managing tasks.",
+    "description": "A high-performance in-memory CRUD API for managing tasks with query filtering, stats, and reset capabilities.",
     "version": "1.0.0"
   },
   "servers": [
@@ -48,15 +48,51 @@
         }
       }
     },
+    "/stats": {
+      "get": {
+        "summary": "Task Statistics",
+        "description": "Returns aggregated counts of total, completed, and open tasks.",
+        "responses": {
+          "200": {
+            "description": "Task statistics calculated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskStatsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reset": {
+      "post": {
+        "summary": "Reset Seed Data",
+        "description": "Resets the task collection back to the initial 3 seed tasks.",
+        "responses": {
+          "200": {
+            "description": "Task collection successfully reset",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResetResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/tasks": {
       "get": {
         "summary": "List All Tasks",
-        "description": "Retrieves the collection of tasks with optional filtering.",
+        "description": "Retrieves the collection of tasks with optional status and search filtering.",
         "parameters": [
           {
             "name": "done",
             "in": "query",
-            "description": "Filter tasks by completion status",
+            "description": "Filter tasks by completion status (true or false)",
             "required": false,
             "schema": {
               "type": "boolean"
@@ -65,7 +101,7 @@
           {
             "name": "search",
             "in": "query",
-            "description": "Filter tasks containing keyword in title",
+            "description": "Filter tasks matching substring in title (case-insensitive)",
             "required": false,
             "schema": {
               "type": "string"
@@ -295,6 +331,38 @@
           }
         }
       },
+      "TaskStatsResponse": {
+        "type": "object",
+        "required": ["total", "done", "open"],
+        "properties": {
+          "total": {
+            "type": "integer",
+            "example": 3
+          },
+          "done": {
+            "type": "integer",
+            "example": 1
+          },
+          "open": {
+            "type": "integer",
+            "example": 2
+          }
+        }
+      },
+      "ResetResponse": {
+        "type": "object",
+        "required": ["message", "total"],
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Task collection successfully reset to default seed data"
+          },
+          "total": {
+            "type": "integer",
+            "example": 3
+          }
+        }
+      },
       "ErrorResponse": {
         "type": "object",
         "required": ["error"],
@@ -332,7 +400,7 @@
             "items": {
               "type": "string"
             },
-            "example": ["/tasks"]
+            "example": ["/tasks", "/stats", "/reset", "/health", "/docs"]
           }
         }
       }
