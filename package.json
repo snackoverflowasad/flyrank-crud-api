@@ -1,0 +1,13 @@
+{
+  "name": "task-api",
+  "version": "1.0.0",
+  "description": "In-memory Task CRUD API",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "swagger-ui-express": "^5.0.1"
+  }
+}
